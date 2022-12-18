@@ -4,33 +4,21 @@ import (
 	"bufio"
 	"io"
 	"log"
-	"os"
 	"unicode"
 )
 
-func ParseEquations(file_name string,
-	var_map map[string]string) [][]string {
+func ParseEquations(reader *bufio.Reader,
+	writer *bufio.Writer, var_map map[string]string) {
 
 	var (
+		err error
 		r rune
-		eqs [][]string
-		eq []string
 		v string = ""
 		coef string = ""
 		readingV bool = false
 	)
-
-	file, err := os.Open(file_name)
-	if err != nil {
-		log.Println(">>>>>>>>>>> error opening file: " + err.Error())
-		return eqs
-	}
-	defer file.Close()
-
-	reader := bufio.NewReader(file)
-
 	
-
+	// Throw away everything before '{'
 	for {
 		r, _, err = reader.ReadRune()
 		if err != nil && err != io.EOF {
@@ -62,42 +50,39 @@ func ParseEquations(file_name string,
 
 			switch {
 			case r == 125 /* } */ :
-				eq = append(eq, var_map[v])
+				writer.WriteString(var_map[v] + " ")
 				if coef == "" {
 					coef = "0"
 				}
-				eq = append(eq, coef)
-				eqs = append(eqs, eq)
+				writer.WriteString(coef + " ")
+				writer.WriteString("\n")
+				writer.Flush()
 				break outer
 
 			case r == 44 /* comma */ :
-				eq = append(eq, var_map[v])
+				writer.WriteString(var_map[v] + " ")
 				if coef == "" {
 					coef = "0"
 				}
-				eq = append(eq, coef)
+				writer.WriteString(coef + " ")
 				v = ""
 				coef = ""
 				readingV = false
-				eqs = append(eqs, eq)
-				eq = []string{}
+				writer.WriteString("\n")
+				writer.Flush()
 
 			case unicode.IsSpace(r) || r == 92 /* backslash */ :
 				continue
 
 			case r == 43 /* + */ || r == 45 /* - */ :
-				if readingV {
-					eq = append(eq, var_map[v])
-					if coef == "" {
-						coef = "0"
-					}
-					eq = append(eq, coef)
-					v = ""
-					coef = ""
-					readingV = false
+				writer.WriteString(var_map[v] + " ")
+				if coef == "" {
+					coef = "0"
 				}
+				writer.WriteString(coef + " ")
 				v = ""
 				coef = string(r)
+				readingV = false
 
 			case r == 42 /* * */ :
 				readingV = true
@@ -108,13 +93,13 @@ func ParseEquations(file_name string,
 				} else {
 					if unicode.IsLetter(r) {
 						readingV = true
-						coef = "1"
+						coef += "1"
 						v += string(r)
 					} else {
 						coef += string(r)
 					}
 				}
-				
+
 			}
 
 			
@@ -122,6 +107,5 @@ func ParseEquations(file_name string,
 		}
 	}
 
-	return eqs
 }
 
