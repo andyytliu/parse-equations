@@ -80,6 +80,7 @@ func ParseEquations(reader *bufio.Reader,
 					coef = "0"
 				}
 				writer.WriteString(coef + " ")
+				writer.Flush()
 				v = ""
 				coef = string(r)
 				readingV = false

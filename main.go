@@ -47,28 +47,4 @@ func main() {
 
 	ParseEquations(reader, writer, var_map)
 
-
-	// file, err := os.Create(out_file_name)
-	// if err != nil {
-	// 	log.Println(">>>>>>>>>>> error: " + err.Error())
-	// 	return
-	// }
-	// defer file.Close()
-
-	// writer := bufio.NewWriter(file)
-
-	// for _, eq := range eqs {
-	// 	for _, term := range eq {
-	// 		_, err := writer.WriteString(term + " ")
-	// 		if err != nil {
-	// 			log.Println(">>>>>>>>>>> error: " + err.Error())
-	// 		}
-	// 	}
-	// 	_, err = writer.WriteString("\n")
-	// 	if err != nil {
-	// 		log.Println(">>>>>>>>>>> error: " + err.Error())
-	// 	}
-	// 	writer.Flush()
-	// }
-
 }
