@@ -52,7 +52,12 @@ func ParseEquations(reader *bufio.Reader,
 
 			switch {
 			case r == 125 /* } */ :
-				buffer.WriteString(var_map[v] + " ")
+				val, ok := var_map[v]
+				if ok {
+					buffer.WriteString(val + " ")
+				} else {
+					log.Println("Unknown variabls: " + v)
+				}
 				if coef == "" {
 					coef = "0"
 				}
@@ -61,7 +66,12 @@ func ParseEquations(reader *bufio.Reader,
 				break outer
 
 			case r == 44 /* comma */ :
-				buffer.WriteString(var_map[v] + " ")
+				val, ok := var_map[v]
+				if ok {
+					buffer.WriteString(val + " ")
+				} else {
+					log.Println("Unknown variabls: " + v)
+				}
 				if coef == "" {
 					coef = "0"
 				}
@@ -76,7 +86,12 @@ func ParseEquations(reader *bufio.Reader,
 				continue
 
 			case r == 43 /* + */ || r == 45 /* - */ :
-				buffer.WriteString(var_map[v] + " ")
+				val, ok := var_map[v]
+				if ok {
+					buffer.WriteString(val + " ")
+				} else {
+					log.Println("Unknown variabls: " + v)
+				}
 				if coef == "" {
 					coef = "0"
 				}
