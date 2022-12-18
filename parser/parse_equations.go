@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bufio"
+	"bytes"
 	"io"
 	"log"
 	"unicode"
@@ -16,6 +17,7 @@ func ParseEquations(reader *bufio.Reader,
 		v string = ""
 		coef string = ""
 		readingV bool = false
+		buffer = bytes.NewBuffer([]byte{})
 	)
 	
 	// Throw away everything before '{'
@@ -50,37 +52,35 @@ func ParseEquations(reader *bufio.Reader,
 
 			switch {
 			case r == 125 /* } */ :
-				writer.WriteString(var_map[v] + " ")
+				buffer.WriteString(var_map[v] + " ")
 				if coef == "" {
 					coef = "0"
 				}
-				writer.WriteString(coef + " ")
-				writer.WriteString("\n")
-				writer.Flush()
+				buffer.WriteString(coef + " ")
+				buffer.WriteString("\n")
 				break outer
 
 			case r == 44 /* comma */ :
-				writer.WriteString(var_map[v] + " ")
+				buffer.WriteString(var_map[v] + " ")
 				if coef == "" {
 					coef = "0"
 				}
-				writer.WriteString(coef + " ")
+				buffer.WriteString(coef + " ")
 				v = ""
 				coef = ""
 				readingV = false
-				writer.WriteString("\n")
-				writer.Flush()
+				buffer.WriteString("\n")
+				
 
 			case unicode.IsSpace(r) || r == 92 /* backslash */ :
 				continue
 
 			case r == 43 /* + */ || r == 45 /* - */ :
-				writer.WriteString(var_map[v] + " ")
+				buffer.WriteString(var_map[v] + " ")
 				if coef == "" {
 					coef = "0"
 				}
-				writer.WriteString(coef + " ")
-				writer.Flush()
+				buffer.WriteString(coef + " ")
 				v = ""
 				coef = string(r)
 				readingV = false
@@ -108,5 +108,13 @@ func ParseEquations(reader *bufio.Reader,
 		}
 	}
 
+	_, err = writer.Write(buffer.Bytes())
+	if err != nil {
+		log.Println(">>>>>>>>>>> error: " + err.Error())
+	}
+	err = writer.Flush()
+	if err != nil {
+		log.Println(">>>>>>>>>>> error: " + err.Error())
+	}
 }
 
